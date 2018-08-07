@@ -53,14 +53,14 @@ describe('All Tests', () => {
 
   beforeAll(() => {
     if (mongoose.connection.readyState === 0) {
-      mongoose.connect(process.env.MONGODB_URI);
+      await mongoose.connect(process.env.MONGODB_URI);
     }
     server.start();
   });
 
   afterAll(() => {
     server.stop();
-    mongoose.disconnect();
+    await mongoose.disconnect();
   });
 
   beforeEach(() => {
