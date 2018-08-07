@@ -7,85 +7,87 @@ require('dotenv').config();
 const superagent = require('superagent');
 const PORT = process.env.PORT || 3000;
 const SERVER_URL = 'http://localhost:' + PORT;
-
+const mongoose = require('mongoose');
 
 const MAIN_LIST_URL = SERVER_URL + '/lists';
+console.log(MAIN_LIST_URL);
 
-let testList = {
+let testListTemplate = {
   name: 'Test List',
   description: 'This is a list created for testing',
-  tasks: [
-    {
-      name: 'test task',
-      completed: false
-    }
-  ]
 }
 
+let testList;
 let testListId;
 
 function loadToDo() {
-  superagent.post(MAIN_LIST_URL)
-  .send(testList)
-  .end((err, res) => {
-    if (err) {
-      console.error('There was an error loading the test list', err);
+  return superagent.get(MAIN_LIST_URL)
+  .then(res => {
+    let lists = res.body
+    if (lists.length > 0) {
+      testList = lists[0];
+      testListId = testList._id;
+    } else if (lists.length === 0) {
+      superagent.post(MAIN_LIST_URL)
+      .send(testListTemplate)
+      .end((er, res) => {
+        let loadedList = res.body;
+        testList = res.body;
+        testListId = testList._id;
+      })
     }
-    console.log('Test list has been loaded successfully', res.status, res.body);
-
-    testListId = res.body._id
-  })
+  });
 };
 
 function emptyToDo() {
-  superagent.delete(`${MAIN_LIST_URL}/testListId`)
-  .end((err, res) => {
-    if (err) {
-      console.error('There was an error deleting the test list', err);
-    }
-    console.log('Test list has been deleted successfully', res.status);
-  });
+  superagent.delete(`${MAIN_LIST_URL}/${testListId}`)
+    .end((err, res) => {
+      if (err) {
+        console.error('There was an error deleting the test list', err);
+      }
+      console.log('Test list has been deleted successfully', res.status);
+    });
 };
 
 describe('All Tests', () => {
 
   beforeAll(() => {
-    server.start;
-  }));
+    if (mongoose.connection.readyState === 0) {
+      mongoose.connect(process.env.MONGODB_URI);
+    }
+    server.start();
+  });
 
   afterAll(() => {
-    server.stop;
+    server.stop();
   });
 
   beforeEach(() => {
-    loadToDo();
+    return loadToDo();
   });
-
-  afterEach(() => {
-    emptyToDo();
-  })
 
   describe('GET REQUESTS /lists', () => {
 
     it('should return a string and status 400 for improper GET /lists request', done => {
-      superagent.get(MAIN_LIST_URL)
-      .end((err, res) => {
-        let status = res.status;
-        let body = res.body;
-        expect(status).toBe(400);
-        done();
-      });
+      superagent.get(SERVER_URL + '/wrongurl')
+        .end((err, res) => {
+          let status = res.status;
+          let body = res.body;
+          expect(status).toBe(404);
+          done();
+        });
     });
 
-    it('should return a string and status 200 for a proper GET /lists request', done => {
+    it('should return correct json and status 200 for a proper GET /lists request', done => {
       superagent.get(MAIN_LIST_URL)
-      .end((err, res) => {
-        let status = res.status;
-        let body = res.body
-        expect(status).toBe(200);
-        expect(body).toEqual(testList);
-        done();
-      });
+        .end((err, res) => {
+          let status = res.status;
+          let list = res.body[0];
+          let responseType = typeof list;
+          expect(status).toBe(200);
+          expect(responseType).toBe('object');
+          done();
+        });
     });
 
   }); // END GET Request tests
@@ -93,56 +95,75 @@ describe('All Tests', () => {
 
   describe('POST REQUESTS /lists', () => {
 
-    it('should return a status 400 for improper POSTS /lists request with improper json/object in request body', done => {
-      let newListBody = {
-        anem: 'hello',
-        'description': 'impropoer body'
+    it('should return a status 400 for improper POSTS /lists request with no body', done => {
+      let emptyBody = {
       };
-      superagent.get(MAIN_LIST_URL)
-      .send(newListBody)
-      .end((err, res) => {
-        let status = res.status;
-        expect(status).toBe(400);
-        done();
-      })
+      superagent.post(MAIN_LIST_URL)
+        .send(emptyBody)
+        .end((err, res) => {
+          let status = res.status;
+          expect(status).toBe(400);
+          done();
+        })
     });
 
     it('should return a message and status 409 for a POST request on a list object that already exists', done => {
-      let existingList = {
-
-      };
-      superagent.get(MAIN_LIST_URL)
-      .send(existingList)
-      .end(err, res) => {
-        let status = res.status;
-        expect(status).toBe(409);
-        done();
-      }
+      superagent.post(MAIN_LIST_URL)
+        .send(testList)
+        .end((err, res) => {
+          let status = res.status;
+          expect(status).toBe(409);
+          done();
+        })
     });
 
     it('should return a string and status 201 for a valid POST request', done => {
-      //test
+      let newList = {
+        name: 'name' + Math.random(),
+        description: 'description' + Math.random()
+      }
+      superagent.post(MAIN_LIST_URL)
+      .send(newList)
+      .end((err, res) => {
+        expect(res.status).toBe(201);
+        expect(res.body.name).toEqual(newList.name);
+        done();
+      })
     });
 
   }); // END POST Request tests
 
   describe('GET REQUESTS /lists/:listId', () => {
 
-    it('should return a string and status 404 for improper GET /lists/:id request when the list is not found', done => {
-      //test
+    it('should return a status 404 for improper GET /lists/:id request when the list is not found', done => {
+      superagent.get(MAIN_LIST_URL + '/5b6a179a0c812a9045fe1111')
+      .end((err, res) => {
+        expect(res.status).toBe(404);
+        done();
+      })
     });
 
-    it('should return a string and status 400 for a GET /lists/:id request when the id is invalid', done => {
-      //test
+    it('should return a status 400 for a GET /lists/:id request when the id is invalid', done => {
+      superagent.get(MAIN_LIST_URL + '/123')
+      .end((err, res) => {
+        expect(res.status).toBe(400);
+        done();
+      })
     });
 
     it('should return a string and status 200 and valid JSON for a proper GET /lists/:id request', done => {
-      //test
+      let testURL = MAIN_LIST_URL + '/' + testListId;
+      superagent.get(testURL)
+      .end((err, res) => {
+        expect(res.status).toBe(200);
+        expect(res.body[0]).toEqual(testList);
+        done();
+      })
     });
 
   }); // END GET /lists/:id Request tests
 
-  describe('POST REQUESTS /lists/:listId/tasks', () => {
+  describe.skip('POST REQUESTS /lists/:listId/tasks', () => {
 
     it('should return a status 400 for improper POST /lists/:id/tasks request when request has invalid body', done => {
       //test
@@ -158,7 +179,7 @@ describe('All Tests', () => {
 
   }); // END GET /lists/:id Request tests
 
-  describe('POST REQUESTS /lists/:listId/tasks/:taskId/complete', () => {
+  describe.skip('POST REQUESTS /lists/:listId/tasks/:taskId/complete', () => {
 
     it('should return a status 400 for improper POST /lists/:listId/tasks/:taskId/complete request when request has invalid body', done => {
       //test
