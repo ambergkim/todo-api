@@ -1,0 +1,28 @@
+{
+  "name": "todo-api",
+  "version": "1.0.0",
+  "description": "A small todo list api",
+  "main": "index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/ambergkim/todo-api.git"
+  },
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/ambergkim/todo-api/issues"
+  },
+  "homepage": "https://github.com/ambergkim/todo-api#readme",
+  "devDependencies": {
+    "superagent": "^3.8.3"
+  },
+  "dependencies": {
+    "dotenv": "^6.0.0"
+  }
+}
