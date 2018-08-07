@@ -60,6 +60,7 @@ describe('All Tests', () => {
 
   afterAll(() => {
     server.stop();
+    mongoose.disconnect();
   });
 
   beforeEach(() => {
