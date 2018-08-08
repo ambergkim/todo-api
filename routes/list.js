@@ -116,24 +116,51 @@ router.post('/:id/tasks', (req, res) => {
   }
 });
 
-router.delete('/:id', (req, res) => {
+router.put('/:id/tasks/:taskId/complete', (req, res) => {
   let listId = req.params.id;
-  List.findOne({ _id: listId })
-    .then(list => {
-      if (!list) {
-        throw new Error('Unable to find list to delete');
-      }
-      return List.remove({
-        _id: listId
-      });
+  let taskId = req.params.taskId;
+  let reqBody = req.body;
+
+  if (reqBody.complete !== true && reqBody.complete !== false) {
+    res.status(400).send('Invalid Body');
+  } else {
+
+    Task.findOneAndUpdate({_id: taskId}, {complete: reqBody.complete})
+    .then(task => {
+      return Task.findOne({_id: taskId})
     })
-    .then(deletedList => {
-      res.status(204).send();
+    .then(task => {
+      res.status(201).send(task);
     })
     .catch(err => {
-      console.error('delete error', err);
-      res.status(404).send(err);
-    });
+      res.status(400).send('Error Updating Task');
+    })
+  }
+});
+
+router.delete('/clear', (req, res) => {
+  List.find()
+  .then(lists => {
+    if (lists.length > 0) {
+      console.log('found lists');
+      return List.remove({});
+    }
+  })
+  .then(() => {
+    return Task.find()
+  })
+  .then(tasks => {
+    if (tasks.length > 0) {
+      console.log('found tasks');
+      return Task.remove({});
+    }
+  })
+  .then(() => {
+    res.status(204).send();
+  })
+  .catch(err => {
+    res.status(400).send('Error with clearing db');
+  })
 });
 
 
