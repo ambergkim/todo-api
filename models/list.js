@@ -1,14 +1,14 @@
 'use strict';
 
 const mongoose = require('mongoose');
-// const User = require('./user.js');
+const Task = require('./task.js');
 
 let listSchema = new mongoose.Schema({
   name: String,
   description: String,
   tasks: [{
-    name: String,
-    completed: {type: Boolean, default: false}
+    type: mongoose.Schema.Types.ObjectId,
+    ref: 'Task'
   }],
 });
 

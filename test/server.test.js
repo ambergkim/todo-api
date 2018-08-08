@@ -15,6 +15,11 @@ console.log(MAIN_LIST_URL);
 let testListTemplate = {
   name: 'Test List',
   description: 'This is a list created for testing',
+  task: [
+    {
+      name: 'Duplicate Task'
+    }
+  ]
 }
 
 let testList;
@@ -39,15 +44,15 @@ function loadToDo() {
   });
 };
 
-function emptyToDo() {
-  superagent.delete(`${MAIN_LIST_URL}/${testListId}`)
-    .end((err, res) => {
-      if (err) {
-        console.error('There was an error deleting the test list', err);
-      }
-      console.log('Test list has been deleted successfully', res.status);
-    });
-};
+// function emptyToDo() {
+//   superagent.delete(`${MAIN_LIST_URL}/${testListId}`)
+//     .end((err, res) => {
+//       if (err) {
+//         console.error('There was an error deleting the test list', err);
+//       }
+//       console.log('Test list has been deleted successfully', res.status);
+//     });
+// };
 
 describe('All Tests', () => {
 
@@ -58,18 +63,19 @@ describe('All Tests', () => {
     server.start();
   });
 
+  beforeEach(() => {
+    return loadToDo();
+  });
+
   afterAll(() => {
     server.stop();
     mongoose.disconnect();
   });
 
-  beforeEach(() => {
-    return loadToDo();
-  });
 
   describe('GET REQUESTS /lists', () => {
 
-    it('should return a string and status 400 for improper GET /lists request', done => {
+    it('should return a status 400 for improper GET /lists request', done => {
       superagent.get(SERVER_URL + '/wrongurl')
         .end((err, res) => {
           let status = res.status;
@@ -91,7 +97,7 @@ describe('All Tests', () => {
         });
     });
 
-  }); // END GET Request tests
+  }); // END GET /lists Request tests
 
 
   describe('POST REQUESTS /lists', () => {
@@ -132,7 +138,7 @@ describe('All Tests', () => {
       })
     });
 
-  }); // END POST Request tests
+  }); // END POST /lists Request tests
 
   describe('GET REQUESTS /lists/:listId', () => {
 
@@ -162,34 +168,57 @@ describe('All Tests', () => {
       })
     });
 
-  }); // END GET /lists/:id Request tests
+  }); // END GET /lists/:listId Request tests
 
-  describe.skip('POST REQUESTS /lists/:listId/tasks', () => {
+  describe('POST REQUESTS /lists/:listId/tasks', () => {
 
-    it('should return a status 400 for improper POST /lists/:id/tasks request when request has invalid body', done => {
-      //test
+    it('should return a status 400 for improper POST /lists/:id/tasks request when request has an invalid body', done => {
+      let testURL = MAIN_LIST_URL + '/' + testListId + '/tasks';
+      superagent.post(testURL)
+      .end((err, res) => {
+        expect(res.status).toBe(400);
+        done();
+      })
     });
 
     it('should return a status 409 for a POST /lists/:id/tasks request when a task already exists', done => {
-      //test
+      let testURL = MAIN_LIST_URL + '/' + testListId + '/tasks';
+      let testBody = {
+        name: 'Duplicate Task'
+      }
+      superagent.post(testURL)
+      .send(testBody)
+      .end((err, res) => {
+        expect(res.status).toBe(409);
+        done();
+      })
     });
 
     it('should return status 201 and valid JSON for a proper GET /lists/:id/tasks request', done => {
-      //test
+      let testURL = MAIN_LIST_URL + '/' + testListId + '/tasks';
+      let testBody = {
+        name: 'Random Task' + Math.random()
+      }
+      superagent.post(testURL)
+      .send(testBody)
+      .end((err, res) => {
+        expect(res.status).toBe(201);
+        done();
+      })
     });
 
-  }); // END GET /lists/:id Request tests
+  }); // END POST /lists/:id/tasks Request tests
 
   describe.skip('POST REQUESTS /lists/:listId/tasks/:taskId/complete', () => {
 
     it('should return a status 400 for improper POST /lists/:listId/tasks/:taskId/complete request when request has invalid body', done => {
-      //test
+      let testURL = MAIN_LIST_URL + '/' + testListId + '/tasks';
     });
 
     it('should return status 201 and valid JSON for a proper POST /lists/:listId/tasks/:taskId/complete request', done => {
       //test
     });
 
-  }); // END GET /lists/:id Request tests
+  }); // END POST /lists/:listId/tasks/:taskId/complete Request tests
 
 }); // END All List tests
