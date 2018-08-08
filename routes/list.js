@@ -6,6 +6,7 @@ const express = require('express');
 const mongoose = require('mongoose');
 
 const List = require('../models/list.js');
+const Task = require('../models/task.js');
 
 const DATABASE_URL = process.env.MONGODB_URI;
 
@@ -73,6 +74,45 @@ router.post('/', (req, res) => {
         res.status(400).send('Error saving new list');
       })
 
+  }
+});
+
+router.post('/:id/tasks', (req, res) => {
+  let listId = req.params.id;
+  let body = req.body;
+  let taskName = req.body.name;
+  let newTaskId;
+
+  if (!taskName) {
+    res.status(400).send('Invalid request body');
+  } else if (taskName) {
+    List.findOne({_id: listId})
+    .populate({path: 'tasks'})
+    .then(list => {
+      let tasks = list.tasks;
+      let taskIndex = tasks.findIndex(task => {
+        return task.name === taskName;
+      })
+      if (taskIndex === -1) {
+        let newTask = new Task(body);
+        return newTask.save();
+      } else if (taskIndex > -1) {
+        throw new Error('Duplicate Task');
+      }
+    })
+    .then(task => {
+      newTaskId = task._id
+      return List.findOneAndUpdate({_id: listId}, {$push: {tasks: newTaskId}}).populate({path: 'tasks'});
+    })
+    .then(() => {
+      return List.findOne({_id: listId})
+    })
+    .then(list => {
+      res.status(201).send(list);
+    })
+    .catch(err => {
+      res.status(409).send(err);
+    })
   }
 });
 
