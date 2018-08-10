@@ -49,6 +49,13 @@ Returns with status code 200
 ]
 ```
 
+##### Query string options
+```
+limit=<int>
+skip=<int>
+search=<word>
+```
+
 ERRORS:
 * Unregisterd routes will return 404 Error getting lists
 
