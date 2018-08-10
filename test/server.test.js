@@ -97,7 +97,7 @@ describe('All Tests', () => {
         superagent.post(MAIN_LIST_URL)
         .send(testBody2)
         .end((err, res) => {
-          let queryUrl = MAIN_LIST_URL + '?skip=1&limit';
+          let queryUrl = MAIN_LIST_URL + '?skip=1&limit=1';
           superagent.get(queryUrl)
           .end((err, res) => {
             expect(res.status).toBe(200);

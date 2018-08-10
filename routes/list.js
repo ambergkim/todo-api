@@ -15,7 +15,7 @@ const router = express.Router();
 
 router.get('/', (req, res) => {
   let skip = 0;
-  let limit = 1;
+  let limit = 100;
 
   let query = {
 
