@@ -4,6 +4,13 @@ A simple To Do List API built with JavaScript + Node.js
 
 ## Table of Contents
 * [Using the App](#use)
+    * [GET all Lists](#getall)
+    * [GET Lists with query strings](#getquery)
+    * [GET List by Id](#getlist)
+    * [Create new list](#postlist)
+    * [Create new task](#posttask)
+    * [Mark task as complete](#completetask)
+    * [Delete all lists and tasks](#clear)
 * [Technologies](#technologies)
 * [Local Development Instructions](#development)
 
@@ -20,14 +27,14 @@ https://amber-todo-api.herokuapp.com/lists
 
 ### Retrieving lists with GET requests
 
-#### GET all the lists template URL:
+#### <a name="getall"></a>GET all the lists template URL:
 ```
 https://amber-todo-api.herokuapp.com/lists
 ```
 
 Example return from a basic GET all request.
 Returns with status code 200
-```
+```json
 [
     {
         "tasks": [
@@ -49,7 +56,7 @@ Returns with status code 200
 ]
 ```
 
-##### Query string options
+##### <a name="getquery"></a>Query string options
 Limit for limiting the number of results that will be returned, Skip for skipping over a certain number of results, and search to search for a specific list containing a string.
 ```
 ?limit=<int>
@@ -61,7 +68,7 @@ ERRORS:
 * Unregisterd routes will return 404 Error getting lists
 
 
-#### GET a specific list by Id template URL:
+#### <a name="getlist"></a>GET a specific list by Id template URL:
 ```
 https://amber-todo-api.herokuapp.com/lists/<id>
 ```
@@ -69,7 +76,7 @@ https://amber-todo-api.herokuapp.com/lists/<id>
 
 Example return when getting a specific list by Id.
 Returns with a status code of 200.
-```
+```json
 [
     {
         "_id": "5b6a179a0c812a9045fe20cd",
@@ -86,7 +93,7 @@ ERRORS:
 * Requests using valid Id's of non-existing lists 
 
 
-### Create a new list using a POST request
+### <a name="postlist"></a>Create a new list using a POST request
 
 Create a new List via POST
 ```
@@ -94,7 +101,7 @@ https://amber-todo-api.herokuapp.com/lists
 ```
 
 example request body
-```
+```json
 {
 	"name": "testing",
 	"description": "Hello world!"
@@ -103,7 +110,7 @@ example request body
 
 Sample return from posting a new list.
 Returns with a status code of 201.
-```
+```json
 {
     "tasks": [],
     "_id": "5b6b882f69f31a0f223486e4",
@@ -118,7 +125,7 @@ ERRORS:
 * Other invalid requests will return 400 errors.
 
 
-### Adding new tasks to a list using a POST request
+### <a name="posttask"></a>Adding new tasks to a list using a POST request
 
 Route Template:
 ```
@@ -126,7 +133,7 @@ https://amber-todo-api.herokuapp.com/lists/<id>/tasks
 ```
 
 example request body
-```
+```json
 {
 	"name": "Testing the tasks"
 }
@@ -134,7 +141,7 @@ example request body
 
 Example return from adding a new task to a List.
 Returns with a status code of 201.
-```
+```json
 {
     "tasks": [
         "5b6b891369f31a0f223486e5"
@@ -151,7 +158,7 @@ ERRORS:
 * Other invalid requests will send a 409 status code.
 
 
-### Updating a task to be 'marked' as complete
+### <a name="completetask"></a>Updating a task to be 'marked' as complete
 
 Route Template:
 ```
@@ -159,7 +166,7 @@ https://amber-todo-api.herokuapp.com/lists/<id>/tasks/:taskId/complete
 ```
 
 example request body
-```
+```json
 {
 	"complete": true
 }
@@ -167,7 +174,7 @@ example request body
 
 Example return from 'marking' a task as complete.
 Returns with a status code of 201
-```
+```json
 {
     "complete": true,
     "_id": "5b6b891369f31a0f223486e5",
@@ -180,7 +187,7 @@ ERRORS:
 * Invalid request bodies will send a status code 400
 * Other invalid requests will return 400 as well
 
-### Clearing away all the lists and tasks
+### <a name="clear"></a>Clearing away all the lists and tasks
 !Warning! This will clear out the database.
 
 Route Template:
