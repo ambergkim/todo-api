@@ -50,10 +50,11 @@ Returns with status code 200
 ```
 
 ##### Query string options
+Limit for limiting the number of results that will be returned, Skip for skipping over a certain number of results, and search to search for a specific list containing a string.
 ```
-limit=<int>
-skip=<int>
-search=<word>
+?limit=<int>
+?skip=<int>
+?search=<word>
 ```
 
 ERRORS:
