@@ -29,7 +29,7 @@ router.get('/', (req, res) => {
       limit = parseInt(req.query.limit);
     }
     if (req.query.search) {
-      query.name = req.query.search;
+      query.name = {$regex: req.query.search};
     }
   }
 
