@@ -33,7 +33,7 @@ router.get('/', (req, res) => {
     }
   }
 
-  List.find(query).skip(skip).limit(limit)
+  List.find(query).skip(skip).limit(limit).populate({path: 'tasks'})
     .then(lists => {
       res.status(200).send(lists);
     })
@@ -47,7 +47,7 @@ router.get('/:id', (req, res) => {
   
   if (req.params.id.length === 24) {
     let listId = req.params.id;
-    List.find({_id: listId})
+    List.find({_id: listId}).populate({path: 'tasks'})
       .then(lists => {
         if (lists.length === 0) {
           res.status(404).send('Not Found');
@@ -119,7 +119,7 @@ router.post('/:id/tasks', (req, res) => {
       return List.findOneAndUpdate({_id: listId}, {$push: {tasks: newTaskId}}).populate({path: 'tasks'});
     })
     .then(() => {
-      return List.findOne({_id: listId})
+      return List.findOne({_id: listId}).populate({path: 'tasks'})
     })
     .then(list => {
       res.status(201).send(list);
@@ -132,7 +132,6 @@ router.post('/:id/tasks', (req, res) => {
 });
 
 router.put('/:id/tasks/:taskId/complete', (req, res) => {
-  let listId = req.params.id;
   let taskId = req.params.taskId;
   let reqBody = req.body;
 

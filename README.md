@@ -38,19 +38,15 @@ Returns with status code 200
 [
     {
         "tasks": [
-            "5b6b44472363c00ac84ab2d1",
-            "5b6b44472363c00ac84ab2d2"
+            {
+                "complete": false,
+                "_id": "5b6de4a18e14e784c747965d",
+                "name": "hello world",
+                "__v": 0
+            }
         ],
-        "_id": "5b6b44472363c00ac84ab2cf",
-        "name": "Test List",
-        "description": "This is a list created for testing",
-        "__v": 0
-    },
-    {
-        "tasks": [],
-        "_id": "5b6b44472363c00ac84ab2d0",
-        "name": "name0.5053199972690177",
-        "description": "description0.09323303520877957",
+        "_id": "5b6de4968e14e784c747965c",
+        "name": "done",
         "__v": 0
     }
 ]
@@ -79,10 +75,16 @@ Returns with a status code of 200.
 ```json
 [
     {
-        "_id": "5b6a179a0c812a9045fe20cd",
-        "name": "Test List",
-        "description": "This is a list created for testing",
-        "tasks": [],
+        "tasks": [
+            {
+                "complete": false,
+                "_id": "5b6de4a18e14e784c747965d",
+                "name": "hello world",
+                "__v": 0
+            }
+        ],
+        "_id": "5b6de4968e14e784c747965c",
+        "name": "done",
         "__v": 0
     }
 ]
@@ -144,11 +146,15 @@ Returns with a status code of 201.
 ```json
 {
     "tasks": [
-        "5b6b891369f31a0f223486e5"
+        {
+            "complete": false,
+            "_id": "5b6de4a18e14e784c747965d",
+            "name": "hello world",
+            "__v": 0
+        }
     ],
-    "_id": "5b6b882f69f31a0f223486e4",
-    "name": "testing",
-    "description": "Hello world!",
+    "_id": "5b6de4968e14e784c747965c",
+    "name": "done",
     "__v": 0
 }
 ```

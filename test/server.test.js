@@ -34,7 +34,7 @@ function loadToDo() {
       } else if (lists.length === 0) {
         superagent.post(MAIN_LIST_URL)
           .send(testListTemplate)
-          .end((er, res) => {
+          .end((err, res) => {
             testList = res.body;
             testListId = testList._id;
           })
@@ -67,7 +67,6 @@ describe('All Tests', () => {
       superagent.get(SERVER_URL + '/wrongurl')
         .end((err, res) => {
           let status = res.status;
-          let body = res.body;
           expect(status).toBe(404);
           done();
         });
@@ -235,7 +234,14 @@ describe('All Tests', () => {
       superagent.post(testURL)
         .send(testBody)
         .end((err, res) => {
+          let tasks = res.body.tasks;
+          let taskFound = tasks.filter(task => {
+            if (task.name === testBody.name) {
+              return task;
+            }
+          });
           expect(res.status).toBe(201);
+          expect(taskFound[0].name).toEqual(testBody.name);
           done();
         })
     });
