@@ -10,7 +10,6 @@ const SERVER_URL = 'http://localhost:' + PORT;
 const mongoose = require('mongoose');
 
 const MAIN_LIST_URL = SERVER_URL + '/lists';
-console.log(MAIN_LIST_URL);
 
 let testListTemplate = {
   name: 'Test List',
@@ -36,7 +35,6 @@ function loadToDo() {
         superagent.post(MAIN_LIST_URL)
           .send(testListTemplate)
           .end((er, res) => {
-            let loadedList = res.body;
             testList = res.body;
             testListId = testList._id;
           })
@@ -86,6 +84,47 @@ describe('All Tests', () => {
           done();
         });
     });
+
+    it('should return correct json and status 200 for GET requests with the correct query strings for skip and limit', done => {
+      let testBody1 = {
+        name: 'test1'
+      };
+      let testBody2 = {
+        name: 'test2'
+      };
+      superagent.post(MAIN_LIST_URL)
+      .send(testBody1)
+      .end((err, res) => {
+        superagent.post(MAIN_LIST_URL)
+        .send(testBody2)
+        .end((err, res) => {
+          let queryUrl = MAIN_LIST_URL + '?skip=1&limit';
+          superagent.get(queryUrl)
+          .end((err, res) => {
+            expect(res.status).toBe(200);
+            expect(res.body.length).toEqual(1);
+            done();
+          })
+        })
+      });
+    })
+
+    it('should return correct json and status 200 for GET requests with the correct query string for search', done => {
+      let testBody3 = {
+        name: 'test3'
+      };
+      superagent.post(MAIN_LIST_URL)
+      .send(testBody3)
+      .end((err, res) => {
+        let searchQueryUrl = MAIN_LIST_URL + '?search=test3';
+        superagent.get(searchQueryUrl)
+        .end((err, res) => {
+          expect(res.status).toBe(200);
+          expect(res.body[0].name).toEqual('test3');
+          done();
+        })
+      });
+    })
 
   }); // END GET /lists Request tests
 

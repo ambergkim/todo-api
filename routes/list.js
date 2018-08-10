@@ -14,18 +14,31 @@ mongoose.connect(DATABASE_URL, { useNewUrlParser: true });
 const router = express.Router();
 
 router.get('/', (req, res) => {
-  if (req.params.id) {
-    let listId = req.params.id;
+  let skip = 0;
+  let limit = 1;
+
+  let query = {
+
+  }
+  
+  if (req.query) {
+    if (req.query.skip) {
+      skip = parseInt(req.query.skip);
+    }
+    if (req.query.limit) {
+      limit = parseInt(req.query.limit);
+    }
+    if (req.query.search) {
+      query.name = req.query.search;
+    }
   }
 
-  if (req.params.id) {
-
-  }
-  List.find()
+  List.find(query).skip(skip).limit(limit)
     .then(lists => {
       res.status(200).send(lists);
     })
     .catch(err => {
+      console.error('Error getting lists', err);
       res.status(404).send('Error getting lists');
     })
 });
@@ -43,6 +56,7 @@ router.get('/:id', (req, res) => {
         }
       })
       .catch(err => {
+        console.error('Error getting list. ListId', listId, err);
         res.status(400).send('Error getting lists');
       })
   } else {
@@ -111,6 +125,7 @@ router.post('/:id/tasks', (req, res) => {
       res.status(201).send(list);
     })
     .catch(err => {
+      console.error('Error creating new task', err);
       res.status(409).send(err);
     })
   }
@@ -133,6 +148,7 @@ router.put('/:id/tasks/:taskId/complete', (req, res) => {
       res.status(201).send(task);
     })
     .catch(err => {
+      console.error('Error updating task', err);
       res.status(400).send('Error Updating Task');
     })
   }
@@ -142,7 +158,6 @@ router.delete('/clear', (req, res) => {
   List.find()
   .then(lists => {
     if (lists.length > 0) {
-      console.log('found lists');
       return List.remove({});
     }
   })
@@ -151,7 +166,6 @@ router.delete('/clear', (req, res) => {
   })
   .then(tasks => {
     if (tasks.length > 0) {
-      console.log('found tasks');
       return Task.remove({});
     }
   })
@@ -159,6 +173,7 @@ router.delete('/clear', (req, res) => {
     res.status(204).send();
   })
   .catch(err => {
+    console.error('Error clearing database', err);
     res.status(400).send('Error with clearing db');
   })
 });
